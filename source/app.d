@@ -14,18 +14,21 @@ enum ModeStrings = () pure {
   return output;
 }();
 
+void parseLineAndPutInDb(char[] line) {
+  import owl_log;
+  const point = parseLogLineAsDevicePoint(line);
+  if(point.valid) putInDb(point);
+}
+
 void cleanDbAndIngest() {
   const ingest_file = readRequiredOption!string("file", "The file to read data from.");
   writeln("Cleaning redis db");
   cleanDb();
   writeln("Ingesting data from ", ingest_file);
-  import owl_log;
-  import std.algorithm : filter, each;
+  import std.algorithm : each;
   File(ingest_file)
     .byLine
-    .map!parseLogLineAsDevicePoint
-    .filter!(a => a.valid)
-    .each!(a => a.putInDb());
+    .each!parseLineAndPutInDb;
   writeln("Done");
 }
 
@@ -53,7 +56,9 @@ void listenToOwlPackets() {
       import std.datetime;
       import vibe.core.file;
       try {
-        appendToFile(getWorkingDirectory() ~ "owl_events.log", format("%s %s\n", Clock.currTime.toISOExtString(), pack));
+        string line = format("%s %s\n", Clock.currTime.toISOExtString(), pack);
+        appendToFile(getWorkingDirectory() ~ "owl_events.log", line);
+        parseLineAndPutInDb(line.dup);
       } catch {}
     }
   });
