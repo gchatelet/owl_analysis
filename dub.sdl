@@ -1,0 +1,6 @@
+name "owl_analysis"
+description "A minimal D application."
+copyright "Copyright © 2016, clitte"
+authors "clitte"
+dependency "vibe-d" version="~>0.7.23"
+versions "VibeCustomMain"

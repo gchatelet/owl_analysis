@@ -1,0 +1,30 @@
+doctype html
+html
+	head
+		title My page
+		script(src="https://www.gstatic.com/charts/loader.js")
+		script var values = [#{text}]
+		:javascript
+			google.charts.load('current', {packages: ['corechart', 'bar']});
+			google.charts.setOnLoadCallback(drawBasic);
+			function drawBasic() {
+				var data = new google.visualization.DataTable();
+				data.addColumn('date', 'Date');
+				data.addColumn('number', 'kWh');
+				data.addRows(values);
+				var options = {
+					bar: {
+						groupWidth: '100%'
+					},
+					hAxis: {
+						title: 'Date',
+					},
+					vAxis: {
+						title: 'Consumption'
+					}
+				};
+				var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+				chart.draw(data, options);
+			}
+	body
+		#chart_div
